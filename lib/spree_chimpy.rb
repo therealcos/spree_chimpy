@@ -117,7 +117,6 @@ module Spree::Chimpy
     when :order
       orders.sync(object)
     when :subscribe
-      puts 'SUBSCRIBING!'
       list.subscribe(object.email, merge_vars(object), customer: object.is_a?(Spree.user_class))
     when :unsubscribe
       list.unsubscribe(object.email)
