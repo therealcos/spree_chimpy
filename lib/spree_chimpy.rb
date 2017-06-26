@@ -104,18 +104,7 @@ module Spree::Chimpy
 
   def handle_event(event, payload = {})
     payload[:event] = event
-
-    case
-    when defined?(::Delayed::Job)
-      ::Delayed::Job.enqueue(payload_object: Spree::Chimpy::Workers::DelayedJob.new(payload),
-                             run_at: Proc.new { 4.minutes.from_now })
-    when defined?(::Sidekiq)
-      Spree::Chimpy::Workers::Sidekiq.perform_in(4.minutes, payload.except(:object))
-    when defined?(::Resque)
-      ::Resque.enqueue(Spree::Chimpy::Workers::Resque, payload.except(:object))
-    else
-      perform(payload)
-    end
+    perform(payload)
   end
 
   def perform(payload)
@@ -128,6 +117,7 @@ module Spree::Chimpy
     when :order
       orders.sync(object)
     when :subscribe
+      puts 'SUBSCRIBING!'
       list.subscribe(object.email, merge_vars(object), customer: object.is_a?(Spree.user_class))
     when :unsubscribe
       list.unsubscribe(object.email)
